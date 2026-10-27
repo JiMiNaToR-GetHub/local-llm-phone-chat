@@ -1,0 +1,12 @@
+node_modules/
+server.log
+supervisor.log
+*.log
+*.crt
+*.key
+config.json
+transcripts/
+attachments/
+.bak
+.tmp
+.DS_Store

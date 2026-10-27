@@ -1,0 +1,19 @@
+{
+  "name": "local-llm-phone-chat",
+  "version": "1.0.0",
+  "description": "A mobile-first, agentic web UI for local LLMs (LM Studio) over Tailscale.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "llm",
+    "lm-studio",
+    "agent",
+    "mobile",
+    "pwa",
+    "tailscale"
+  ],
+  "author": "JiMiNaToR",
+  "license": "MIT"
+}

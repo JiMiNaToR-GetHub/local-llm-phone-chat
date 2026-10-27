@@ -1,0 +1,8 @@
+{
+  "port": 8080,
+  "apiHost": "127.0.0.1",
+  "apiPort": 1235,
+  "workspaceRoot": "G:\\Local_LLM_Storage",
+  "certPath": "./cert",
+  "bionicInternalPath": "C:\\Users\\grigo\\.lmstudio\\apps\\bionic\\.internal"
+}
