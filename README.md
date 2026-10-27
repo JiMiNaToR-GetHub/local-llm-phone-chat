@@ -53,7 +53,7 @@ A mobile-first, agentic web UI for local LLMs (LM Studio). Built for accessing y
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/local-llm-phone-chat.git
+git clone https://github.com/JiMiNaToR/local-llm-phone-chat.git
 cd local-llm-phone-chat
 ```
 
