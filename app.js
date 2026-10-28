@@ -889,17 +889,10 @@ document.getElementById('create-project').onclick = async () => {
 };
 
 el.wakeBtn.onclick = () => {
-  if (!confirm('Send Wake-on-LAN packet to PC?')) return;
-
-  // Trigger the local Termux script via Android Intent
-  const intent = 'intent:#Intent;component=com.termux/com.termux.app.RunCommandService;S.com.termux.RUN_COMMAND_PATH=/data/data/com.termux/files/home/wake.sh;S.com.termux.RUN_COMMAND_ARGUMENTS=wan;end';
-  window.location.href = intent;
-
-  setTimeout(() => {
-    if (!document.hidden) {
-      alert('Could not launch Termux. Please enable "Allow external apps" in Termux settings, or use the Termux:Widget shortcut.');
-    }
-  }, 1500);
+  document.getElementById('wake-modal').style.display = 'flex';
+};
+document.getElementById('close-wake-modal').onclick = () => {
+  document.getElementById('wake-modal').style.display = 'none';
 };
 
 el.hibernateBtn.onclick = async () => {

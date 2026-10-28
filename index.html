@@ -89,6 +89,14 @@
   </div>
 </div>
 
+<div id="wake-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--surface); width:100%; max-width:400px; border-radius:24px; padding:24px; border:1px solid var(--border); display:flex; flex-direction:column; gap:16px; text-align:center;">
+    <h3 style="margin:0; font-size:18px; color:var(--text-main);">☀️ Wake PC</h3>
+    <p style="margin:0; font-size:14px; color:var(--text-muted); line-height:1.5;">Android blocks web browsers from launching Termux commands for security.<br><br>Please tap your <b>Termux:Widget</b> on your home screen to wake the PC.</p>
+    <button id="close-wake-modal" style="background:var(--primary); border:none; color:#fff; padding:12px 16px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; margin-top:8px;">Got it</button>
+  </div>
+</div>
+
 <video id="wake-video" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01; pointer-events:none;"></video>
 <input type="file" id="file-input" accept="image/*,text/plain" multiple style="position: fixed; bottom: -100px; opacity: 0;" />
 
