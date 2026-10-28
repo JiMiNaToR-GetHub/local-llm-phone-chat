@@ -30,6 +30,8 @@ const DEFAULT_MODEL = "gemma-4-26b-a4b-it-qat";
 const el = {
   sel: document.getElementById('model'),
   status: document.getElementById('status'),
+  statusText: document.getElementById('status-text'),
+  statusDot: document.getElementById('status-dot'),
   msgs: document.getElementById('messages'),
   input: document.getElementById('input'),
   send: document.getElementById('send'),
@@ -49,8 +51,34 @@ let agentMode = false;
 let chatId = localStorage.getItem('chatId') || null;
 
 function setStatus(text, isErr) {
-  el.status.textContent = text;
-  el.status.className = isErr ? 'err' : '';
+  if (el.statusText) el.statusText.textContent = text;
+  if (el.statusDot) {
+    if (isErr) {
+      el.statusDot.className = 'dot offline';
+    } else if (text.toLowerCase().includes('connecting') || text.toLowerCase().includes('waking')) {
+      el.statusDot.className = 'dot waking';
+    } else {
+      el.statusDot.className = 'dot ready';
+    }
+  }
+}
+
+let healthInterval = null;
+function startHealthPoll() {
+  if (healthInterval) return;
+  setStatus('PC Offline · Waking...', true);
+  healthInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`${location.origin}/health`);
+      if (res.ok) {
+        clearInterval(healthInterval);
+        healthInterval = null;
+        setStatus('Connecting...', false);
+        loadModels();
+        loadProjects();
+      }
+    } catch (e) {}
+  }, 5000);
 }
 
 function rankOf(id) {
@@ -114,9 +142,10 @@ async function loadModels() {
       el.sel.value = DEFAULT_MODEL;
     }
     
-    setStatus(`${models.length} local models · ${location.hostname}`);
+    setStatus(`Ready · ${models.length} models`);
   } catch (e) {
     setStatus(`Offline: ${e.message}`, true);
+    startHealthPoll();
   }
 }
 
@@ -240,11 +269,11 @@ function render() {
       div.appendChild(body);
     }
 
-    if (m.meta) {
+    if (m.role === 'assistant' && m.meta) {
       const meta = document.createElement('div');
-      meta.className = 'meta';
+      meta.className = 'msg-status';
       meta.textContent = m.meta;
-      div.appendChild(meta);
+      div.prepend(meta);
     }
     el.msgs.appendChild(div);
   }
@@ -670,6 +699,12 @@ async function send() {
   el.send.disabled = true;
   el.send.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
   
+  const agentStatus = document.getElementById('agent-status');
+  if (agentStatus) {
+    agentStatus.style.display = 'block';
+    agentStatus.textContent = 'Thinking...';
+  }
+
   controller = new AbortController();
   const started = performance.now();
   let tokens = 0;
@@ -739,8 +774,14 @@ IMPORTANT RULES:
             let json;
             try { json = JSON.parse(payload); } catch { continue; }
             const delta = json.choices?.[0]?.delta || {};
-            if (delta.reasoning_content) bot.reasoning += delta.reasoning_content;
-            if (delta.content) bot.content += delta.content;
+            if (delta.reasoning_content) {
+              bot.reasoning += delta.reasoning_content;
+              if (agentStatus) agentStatus.textContent = 'Reasoning...';
+            }
+            if (delta.content) {
+              bot.content += delta.content;
+              if (agentStatus) agentStatus.textContent = 'Writing...';
+            }
             if (delta.tool_calls) {
               if (!toolCalls) toolCalls = [];
               for (const tc of delta.tool_calls) {
@@ -758,6 +799,7 @@ IMPORTANT RULES:
       if (toolCalls && toolCalls.length > 0) {
         bot.tool_calls = toolCalls;
         for (const tc of toolCalls) {
+          if (agentStatus) agentStatus.textContent = `Running ${tc.function.name}...`;
           const result = await executeTool(tc);
           messages.push({ role: 'tool', tool_call_id: tc.id, content: result });
         }
@@ -775,9 +817,10 @@ IMPORTANT RULES:
     const secs = (performance.now() - started) / 1000;
     const lastBot = messages[messages.length - 1];
     if (lastBot && lastBot.role === 'assistant') {
-      if (tokens) lastBot.meta = `${tokens} tokens · ${(tokens / secs).toFixed(1)} tok/s · ${secs.toFixed(1)}s`;
-      else lastBot.meta = `${secs.toFixed(1)}s`;
+      if (tokens) lastBot.meta = `Worked for ${secs.toFixed(1)}s · ${tokens} tokens · ${(tokens / secs).toFixed(1)} tok/s`;
+      else lastBot.meta = `Worked for ${secs.toFixed(1)}s`;
     }
+    if (agentStatus) agentStatus.style.display = 'none';
     if (metricsInterval) {
       clearInterval(metricsInterval);
       metricsInterval = null;

@@ -12,6 +12,7 @@ A mobile-first, agentic web UI for local LLMs (LM Studio). Built for accessing y
   - Strict path sandboxing.
   - Syntax validation and atomic backups before file writes.
   - Confirmation modals (Allow / Cancel / Allow All) for risky commands.
+- **Live Status & Metrics**: A wake/ready indicator, real-time agent status (Reasoning, Writing, Running tool), and a live CPU/GPU/VRAM bar during generation.
 - **PWA Ready**: Install it to your home screen for a native, standalone experience with offline caching.
 - **Rich UI**: Markdown rendering, syntax-highlighted code blocks with copy buttons, multi-file attachments, and smart auto-scrolling.
 - **Live Metrics**: Displays CPU, GPU compute, and VRAM usage while the model is generating.

@@ -47,8 +47,24 @@
   button:active { transform: scale(0.92); }
   button.icon-btn { padding: 8px; border-radius: 14px; }
 
-  #status { font-size: 12px; color: var(--text-muted); padding: 0 16px; }
-  #status.err { color: #FF453A; }
+  .status-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 16px; font-size: 12px; color: var(--text-muted);
+    background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .status-bar .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #FFD60A;
+    transition: background 0.3s ease;
+  }
+  .status-bar .dot.ready { background: #30D158; }
+  .status-bar .dot.offline { background: #FF453A; }
+  .status-bar .dot.waking { background: #FFD60A; animation: pulse 1.5s infinite; }
+
+  .msg-status {
+    font-size: 11px; color: var(--text-muted);
+    margin-bottom: 8px; font-family: monospace;
+  }
 
   /* Messages Area */
   main {
@@ -165,7 +181,7 @@
     100% { opacity: 0.4; transform: scale(0.8); }
   }
 
-  .meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-family: monospace; }
+
 
   .msg-content, details.think > div {
     white-space: pre-wrap;
