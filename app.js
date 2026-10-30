@@ -13,16 +13,25 @@ const RANK = [
 ];
 
 const LABELS = {
-  "gemma-4-26b-a4b-it-qat": "Gemma 4 26B-A4B · best overall",
-  "deepseek-r1-0528-qwen3-8b@q8_0": "DeepSeek R1 8B Q8 · reasoning",
-  "gemma-3-27b-it-qat": "Gemma 3 27B",
-  "deepseek-r1-0528-qwen3-8b@q4_k_m": "DeepSeek R1 8B Q4 · fast",
-  "nousresearch_hermes-4-14b": "Hermes 4 14B",
-  "qwen/qwen3.5-9b": "Qwen3.5 9B",
-  "qwen3-vl-8b-instruct": "Qwen3-VL 8B",
-  "google/gemma-4-e4b": "Gemma 4 E4B",
-  "qwen3-8b": "Qwen3 8B"
+  "gemma-4-26b-a4b-it-qat": "Gemma 4 26B · 85 t/s · Best overall",
+  "deepseek-r1-0528-qwen3-8b@q8_0": "DeepSeek R1 8B Q8 · 69 t/s · Best reasoning",
+  "gemma-3-27b-it-qat": "Gemma 3 27B · 33 t/s · Dense 27B",
+  "deepseek-r1-0528-qwen3-8b@q4_k_m": "DeepSeek R1 8B Q4 · 100 t/s · Fast reasoning",
+  "nousresearch_hermes-4-14b": "Hermes 4 14B · 50 t/s · Chat/Roleplay",
+  "qwen/qwen3.5-9b": "Qwen3.5 9B · 86 t/s · Modern + Vision",
+  "qwen3-vl-8b-instruct": "Qwen3-VL 8B · 99 t/s · Vision",
+  "google/gemma-4-e4b": "Gemma 4 E4B · 99 t/s · Tiny + Fast",
+  "qwen3-8b": "Qwen3 8B · 100 t/s · Baseline"
 };
+
+const REASONING_MODELS = [
+  "gemma-4-26b-a4b-it-qat",
+  "deepseek-r1-0528-qwen3-8b@q8_0",
+  "deepseek-r1-0528-qwen3-8b@q4_k_m",
+  "qwen/qwen3.5-9b",
+  "google/gemma-4-e4b",
+  "qwen3-8b"
+];
 
 const HIDDEN = ["deepseek/deepseek-r1-0528-qwen3-8b", "google/gemma-3-27b"];
 const DEFAULT_MODEL = "gemma-4-26b-a4b-it-qat";
@@ -81,6 +90,27 @@ function startHealthPoll() {
       }
     } catch (e) {}
   }, 5000);
+}
+
+function updateNcmState() {
+  const modelId = el.sel.value;
+  const isReasoning = REASONING_MODELS.includes(modelId);
+  const switchEl = document.querySelector('.ncm-switch');
+  if (isReasoning) {
+    el.ncmBtn.checked = false;
+    el.ncmBtn.disabled = true;
+    ncmMode = false;
+    if (switchEl) {
+      switchEl.style.opacity = '0.4';
+      switchEl.title = 'NCM is disabled for reasoning models';
+    }
+  } else {
+    el.ncmBtn.disabled = false;
+    if (switchEl) {
+      switchEl.style.opacity = '1';
+      switchEl.title = 'Toggle NCM Planning';
+    }
+  }
 }
 
 function rankOf(id) {
@@ -145,6 +175,7 @@ async function loadModels() {
     }
     
     setStatus(`Ready · ${models.length} models`);
+    updateNcmState();
   } catch (e) {
     setStatus(`Offline: ${e.message}`, true);
     startHealthPoll();
@@ -941,7 +972,10 @@ el.newChat.addEventListener('click', () => {
     persist();
   }
 });
-el.sel.addEventListener('change', persist);
+el.sel.addEventListener('change', () => {
+  persist();
+  updateNcmState();
+});
 
 let currentDir = '';
 
