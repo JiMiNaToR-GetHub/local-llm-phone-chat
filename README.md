@@ -16,8 +16,26 @@ A mobile-first, agentic web UI for local LLMs (LM Studio). Built for accessing y
 - **NCM Planning**: Experimental Next-Concept Modeling toggle for coarse-to-fine reasoning.
 - **Remote Power Control**: Hibernate the PC remotely, and get a handy reminder to use your Termux:Widget for Wake-on-LAN.
 - **Rich UI**: Markdown rendering, syntax-highlighted code blocks with copy buttons, multi-file attachments, and smart auto-scrolling.
-- **Live Metrics**: Displays CPU, GPU compute, and VRAM usage while the model is generating.
 - **Secure**: Designed to run behind Tailscale with automatic HTTPS certificates.
+
+## 🧠 NCM (Next-Concept Modeling) Simulation
+
+This app includes an experimental toggle for **Next-Concept Modeling**, a coarse-to-fine planning technique from Hazy Research. When enabled (the Brain icon), it injects a system prompt that forces the model to output hierarchical semantic tokens (`NCM`, `NCM2`, `NCM3`) before writing its final answer. 
+
+This anchors the model's logical state, reducing hallucinations and structural drift on complex tasks.
+
+**Tested Example Prompt:**
+> *"Write a JavaScript function that finds the longest palindromic substring in a string using an optimized approach. Explain the time and space complexity. Make sure to handle edge cases like empty strings, single characters, and Unicode characters."*
+
+**Expected Output Format:**
+```text
+NCM `task:longest_palindromic_substring` `input:string` `algo:Manacher`
+NCM2 `constraints:empty_str,single_char,unicode` `state:center,right_boundary,mirror` `deps:preprocessing`
+NCM3 `impl:transform_string,expand_radii,extract_result` `edge:surrogate_pairs` `verify:O(n)`
+---
+
+[JavaScript code and explanation follows here]
+```
 
 ## 🛠️ Architecture
 
@@ -66,7 +84,7 @@ Copy `config.example.json` to `config.json` and adjust the paths:
   "port": 8080,
   "apiHost": "127.0.0.1",
   "apiPort": 1235,
-  "workspaceRoot": "G:\\Local_LLM_Storage",
+  "workspaceRoot": "G:\\Local_LLM_Storage\\Local_LLM_to_Android",
   "certPath": "./cert",
   "bionicInternalPath": "C:\\Users\\YOUR_USER\\.lmstudio\\apps\\bionic\\.internal"
 }
