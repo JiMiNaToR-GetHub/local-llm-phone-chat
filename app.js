@@ -38,6 +38,10 @@ const DEFAULT_MODEL = "gemma-4-26b-a4b-it-qat";
 
 const el = {
   sel: document.getElementById('model'),
+  modelBtn: document.getElementById('model-btn'),
+  modelBtnText: document.getElementById('model-btn-text'),
+  modelModal: document.getElementById('model-modal'),
+  modelList: document.getElementById('model-list'),
   status: document.getElementById('status'),
   statusText: document.getElementById('status-text'),
   statusDot: document.getElementById('status-dot'),
@@ -136,6 +140,11 @@ async function loadProjects() {
   }
 }
 
+function updateModelBtnText() {
+  const selected = el.sel.options[el.sel.selectedIndex];
+  if (el.modelBtnText) el.modelBtnText.textContent = selected ? selected.text : 'Select Model';
+}
+
 async function loadModels() {
   try {
     const res = await fetch(`${location.origin}/v1/models`);
@@ -146,34 +155,51 @@ async function loadModels() {
       .filter(m => !HIDDEN.includes(m.id))
       .sort((a, b) => rankOf(a.id) - rankOf(b.id) || a.id.localeCompare(b.id));
     
-    let options = '<option disabled selected>Select Model</option>' + models.map(m => {
+    const allModels = [];
+    models.forEach(m => {
       const i = rankOf(m.id);
       const prefix = i < 900 ? `${i + 1}. ` : '';
-      return `<option value="${m.id}">${prefix}${LABELS[m.id] || m.id}</option>`;
-    }).join('');
+      allModels.push({ id: m.id, label: `${prefix}${LABELS[m.id] || m.id}` });
+    });
 
     try {
       const cloudRes = await fetch('/api/cloud-models');
       const cloudModels = await cloudRes.json();
       if (Array.isArray(cloudModels) && cloudModels.length > 0) {
-        options += '<option disabled>────────── Cloud (Bionic+) ──────────</option>';
-        options += cloudModels.map(m => `<option value="${m.id}">☁️ ${m.name} (Desktop only)</option>`).join('');
+        cloudModels.forEach(m => {
+          allModels.push({ id: m.id, label: `☁️ ${m.name} (Desktop only)` });
+        });
       }
     } catch (e) {
       console.error('Failed to load cloud models', e);
     }
 
-    el.sel.innerHTML = options;
+    el.sel.innerHTML = allModels.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
 
     const saved = localStorage.getItem('model');
-    if (saved) {
-      const exists = [...el.sel.options].some(o => o.value === saved);
-      if (exists) el.sel.value = saved;
+    if (saved && allModels.some(m => m.id === saved)) {
+      el.sel.value = saved;
     }
     if (!el.sel.value && models.some(m => m.id === DEFAULT_MODEL)) {
       el.sel.value = DEFAULT_MODEL;
     }
-    
+
+    el.modelList.innerHTML = allModels.map(m => {
+      const isSelected = m.id === el.sel.value;
+      return `<div class="model-item ${isSelected ? 'selected' : ''}" data-id="${m.id}">
+        <div class="name">${m.label}</div>
+      </div>`;
+    }).join('');
+
+    el.modelList.querySelectorAll('.model-item').forEach(item => {
+      item.onclick = () => {
+        el.sel.value = item.dataset.id;
+        el.sel.dispatchEvent(new Event('change'));
+        el.modelModal.style.display = 'none';
+      };
+    });
+
+    updateModelBtnText();
     setStatus(`Ready · ${models.length} models`);
     updateNcmState();
   } catch (e) {
@@ -975,7 +1001,15 @@ el.newChat.addEventListener('click', () => {
 el.sel.addEventListener('change', () => {
   persist();
   updateNcmState();
+  updateModelBtnText();
 });
+
+el.modelBtn.onclick = () => {
+  el.modelModal.style.display = 'flex';
+};
+document.getElementById('close-model-modal').onclick = () => {
+  el.modelModal.style.display = 'none';
+};
 
 let currentDir = '';
 

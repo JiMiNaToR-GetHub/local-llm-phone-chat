@@ -47,6 +47,30 @@
   button:active { transform: scale(0.92); }
   button.icon-btn { padding: 8px; border-radius: 14px; }
 
+  .model-btn {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 14px; padding: 10px 14px; font-size: 14px;
+    color: var(--text-main); cursor: pointer; width: 100%; box-sizing: border-box;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .model-btn:active { background: var(--border); }
+  #model-btn-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+
+  .model-item {
+    display: flex; flex-direction: column; padding: 14px 16px;
+    border-radius: 14px; cursor: pointer; margin-bottom: 4px;
+    border: 1px solid transparent; transition: all 0.2s ease;
+  }
+  .model-item:active { background: rgba(255,255,255,0.05); }
+  .model-item.selected {
+    background: rgba(52, 130, 255, 0.1);
+    border-color: rgba(52, 130, 255, 0.3);
+  }
+  .model-item .name { font-weight: 600; font-size: 15px; color: var(--text-main); }
+  .model-item .details { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .model-item.selected .name { color: var(--primary); }
+
   .ncm-switch {
     display: flex; flex-direction: column; align-items: center; gap: 2px;
     cursor: pointer; margin: 0 4px;
