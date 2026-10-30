@@ -915,9 +915,8 @@ el.hibernateBtn.onclick = async () => {
   }
 };
 
-el.ncmBtn.onclick = () => {
-  ncmMode = !ncmMode;
-  el.ncmBtn.style.color = ncmMode ? 'var(--primary)' : 'var(--text-muted)';
+el.ncmBtn.onchange = () => {
+  ncmMode = el.ncmBtn.checked;
 };
 el.agentBtn.onclick = () => {
   agentMode = !agentMode;

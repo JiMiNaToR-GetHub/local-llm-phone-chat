@@ -47,6 +47,33 @@
   button:active { transform: scale(0.92); }
   button.icon-btn { padding: 8px; border-radius: 14px; }
 
+  .ncm-switch {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    cursor: pointer; margin: 0 4px;
+  }
+  .ncm-switch input { display: none; }
+  .ncm-switch .switch-track {
+    width: 22px; height: 36px;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 11px; position: relative; transition: all 0.2s ease;
+  }
+  .ncm-switch .switch-thumb {
+    position: absolute; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--text-muted);
+    bottom: 2px; left: 2px; transition: all 0.2s ease;
+  }
+  .ncm-switch input:checked + .switch-track {
+    background: var(--primary); border-color: var(--primary);
+  }
+  .ncm-switch input:checked + .switch-track .switch-thumb {
+    transform: translateY(-14px); background: #fff;
+  }
+  .ncm-switch .switch-label {
+    font-size: 8px; font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+  .ncm-switch input:checked ~ .switch-label { color: var(--primary); }
+
   .status-bar {
     display: flex; align-items: center; gap: 8px;
     padding: 6px 16px; font-size: 12px; color: var(--text-muted);
