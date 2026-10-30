@@ -145,6 +145,17 @@ function updateModelBtnText() {
   if (el.modelBtnText) el.modelBtnText.textContent = selected ? selected.text : 'Select Model';
 }
 
+function updateModelListSelection() {
+  if (!el.modelList) return;
+  el.modelList.querySelectorAll('.model-item').forEach(item => {
+    if (item.dataset.id === el.sel.value) {
+      item.classList.add('selected');
+    } else {
+      item.classList.remove('selected');
+    }
+  });
+}
+
 async function loadModels() {
   try {
     const res = await fetch(`${location.origin}/v1/models`);
@@ -186,8 +197,10 @@ async function loadModels() {
 
     el.modelList.innerHTML = allModels.map(m => {
       const isSelected = m.id === el.sel.value;
+      const ncmCapable = !REASONING_MODELS.includes(m.id) && !m.label.includes('Desktop only');
+      const ncmBadge = ncmCapable ? '<span style="font-size:10px; background:rgba(52,130,255,0.2); color:var(--primary); padding:2px 6px; border-radius:4px; font-weight:600;">🧠 NCM</span>' : '';
       return `<div class="model-item ${isSelected ? 'selected' : ''}" data-id="${m.id}">
-        <div class="name">${m.label}</div>
+        <div class="name">${m.label} ${ncmBadge}</div>
       </div>`;
     }).join('');
 
@@ -1002,6 +1015,7 @@ el.sel.addEventListener('change', () => {
   persist();
   updateNcmState();
   updateModelBtnText();
+  updateModelListSelection();
 });
 
 el.modelBtn.onclick = () => {

@@ -67,7 +67,7 @@
     background: rgba(52, 130, 255, 0.1);
     border-color: rgba(52, 130, 255, 0.3);
   }
-  .model-item .name { font-weight: 600; font-size: 15px; color: var(--text-main); }
+  .model-item .name { font-weight: 600; font-size: 15px; color: var(--text-main); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
   .model-item .details { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
   .model-item.selected .name { color: var(--primary); }
 
