@@ -38,6 +38,7 @@ const el = {
   newChat: document.getElementById('new'),
   wakeBtn: document.getElementById('wake-btn'),
   hibernateBtn: document.getElementById('hibernate-btn'),
+  ncmBtn: document.getElementById('ncm-btn'),
   agentBtn: document.getElementById('agent-btn'),
   projectSel: document.getElementById('project-select'),
   fileInput: document.getElementById('file-input'),
@@ -49,6 +50,7 @@ let controller = null;
 let busy = false;
 let currentAttachments = [];
 let agentMode = false;
+let ncmMode = false;
 let chatId = localStorage.getItem('chatId') || null;
 
 function setStatus(text, isErr) {
@@ -710,18 +712,25 @@ async function send() {
   const started = performance.now();
   let tokens = 0;
 
-  let sysPrompt = null;
+  const NCM_PROMPT = `[ncm-simulation]: Simulate Next-Concept Modeling (NCM) coarse-to-fine planning. Scale passes continuously across the full 0–3 range based strictly on task complexity and input/output length: trivial chatter or brief factual lookups = 0 passes (skip NCM); straightforward tasks = 1 line (\`NCM\`); multi-step or non-trivial tasks = 2 lines (\`NCM\`, \`NCM2\`); complex logic, programming, or multi-constraint reasoning = 3 lines (\`NCM\`, \`NCM2\`, \`NCM3\`). Never jump directly from 0 to 3 for moderate tasks. When NCM is active (>0 passes), strictly emit separate plain lines using backtick-wrapped, keyword-dense semantic tokens in compressed caveman shorthand (no grammatical filler). \`NCM\` captures objective, entities, parameters, rules; \`NCM2\` captures constraints, exceptions, dependencies, state changes; \`NCM3\` captures implementation, edge cases, verification, requirements. When NCM is active, separate these prefix lines from your answer with an explicit line containing three hyphens (---) and include no NCM tokens below it. Treat the scaffold as a planning anchor, then write your complete response below \`---\`, fully obeying all other user instructions and constraints. Strict format when active: \`NCM\` \`token1\` \`token3\` \`token5\` \n \`NCM2\` \`token1\` \`token2\` \`token3\` \`token5\` \n \`NCM3\` \`token1\` \`token2\` \`token3\` \`token4\` \`token5\` \n ---\n [Complete answer]`;
+
+  let sysContent = '';
   if (agentMode) {
     const projName = el.projectSel.options[el.projectSel.selectedIndex]?.text || 'the entire workspace';
-    sysPrompt = { role: 'system', content: `You are an AI coding agent working on the project "${projName}".
+    sysContent += `You are an AI coding agent working on the project "${projName}".
 You are NOT a standard chat assistant. You have access to real tools that can read, write, and edit files, and execute PowerShell commands on the user's PC.
 IMPORTANT RULES:
 1. For small changes, ALWAYS use "edit_file" instead of "write_file".
 2. Use "write_file" only for creating new files or completely rewriting a small file.
 3. When the user asks you to run a command, test code, or check syntax, you MUST use the "run_command" tool. NEVER say "I cannot run commands".
 4. Ensure all strings are properly escaped. Do not double-escape backslashes.
-5. The write_file and edit_file tools will reject invalid syntax.` };
+5. The write_file and edit_file tools will reject invalid syntax.`;
   }
+  if (ncmMode) {
+    if (sysContent) sysContent += '\n\n';
+    sysContent += NCM_PROMPT;
+  }
+  const sysPrompt = sysContent ? { role: 'system', content: sysContent } : null;
 
   try {
     while (true) {
@@ -906,6 +915,10 @@ el.hibernateBtn.onclick = async () => {
   }
 };
 
+el.ncmBtn.onclick = () => {
+  ncmMode = !ncmMode;
+  el.ncmBtn.style.color = ncmMode ? 'var(--primary)' : 'var(--text-muted)';
+};
 el.agentBtn.onclick = () => {
   agentMode = !agentMode;
   el.agentBtn.style.color = agentMode ? 'var(--primary)' : 'var(--text-muted)';
