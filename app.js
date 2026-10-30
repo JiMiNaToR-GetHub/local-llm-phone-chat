@@ -36,7 +36,6 @@ const el = {
   input: document.getElementById('input'),
   send: document.getElementById('send'),
   newChat: document.getElementById('new'),
-  wakeBtn: document.getElementById('wake-btn'),
   hibernateBtn: document.getElementById('hibernate-btn'),
   ncmBtn: document.getElementById('ncm-btn'),
   agentBtn: document.getElementById('agent-btn'),
@@ -897,22 +896,31 @@ document.getElementById('create-project').onclick = async () => {
   }
 };
 
-el.wakeBtn.onclick = () => {
-  document.getElementById('wake-modal').style.display = 'flex';
-};
-document.getElementById('close-wake-modal').onclick = () => {
-  document.getElementById('wake-modal').style.display = 'none';
+el.hibernateBtn.onclick = () => {
+  document.getElementById('power-modal').style.display = 'flex';
 };
 
-el.hibernateBtn.onclick = async () => {
-  if (confirm('Put the PC into hibernation?')) {
-    try {
-      await fetch('/api/hibernate', { method: 'POST' });
-      setStatus('PC is hibernating...', false);
-    } catch (e) {
-      alert('Failed to hibernate: ' + e.message);
-    }
+document.getElementById('modal-cancel').onclick = () => {
+  document.getElementById('power-modal').style.display = 'none';
+};
+
+document.getElementById('modal-wake').onclick = () => {
+  document.getElementById('power-modal').style.display = 'none';
+  document.getElementById('wake-modal').style.display = 'flex';
+};
+
+document.getElementById('modal-hibernate').onclick = async () => {
+  document.getElementById('power-modal').style.display = 'none';
+  try {
+    await fetch('/api/hibernate', { method: 'POST' });
+    setStatus('PC is hibernating...', false);
+  } catch (e) {
+    alert('Failed to hibernate: ' + e.message);
   }
+};
+
+document.getElementById('close-wake-modal').onclick = () => {
+  document.getElementById('wake-modal').style.display = 'none';
 };
 
 el.ncmBtn.onchange = () => {
